@@ -1,9 +1,13 @@
-package migration;
+package example;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintStream;
+
+import migration.TransactionalFileInputStream;
+import migration.TransactionalFileOutputStream;
+import migration.MigratableProcess;
 
 public class GrepProcess implements MigratableProcess
 {
@@ -34,6 +38,7 @@ public class GrepProcess implements MigratableProcess
 
         try {
             while (!suspending) {
+                @SuppressWarnings("deprecation")
                 String line = in.readLine();
 
                 if (line == null) break;

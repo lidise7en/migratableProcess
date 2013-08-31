@@ -1,8 +1,13 @@
-import migration.GrepProcess;
 
 import com.google.gson.Gson;
 
+import example.GrepProcess;
 
+/**
+ * 
+ * @author zhuolinl, dili1
+ *
+ */
 public class migrationMain {
     public static void main(String[] args) {
         String[] gProcessArgs = {"a","b","c"};
@@ -15,4 +20,5 @@ public class migrationMain {
             e.printStackTrace();
         }
     }
+    //TODO: create a new process and ship it to another node.
 }
