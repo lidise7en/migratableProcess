@@ -1,8 +1,10 @@
 package manager;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.Class;
 import java.util.ArrayList;
 
 import migration.MigratableProcess;
@@ -19,26 +21,27 @@ public class SlaveProcessManager {
     public SlaveProcessManager(int port, String hostIpAddr) {
         processList = new ArrayList<MigratableProcess>();
         BasicPart realProcess = new Slave(port, hostIpAddr);
-        //new Thread(launchProcess());
-        //System.out.println(this.port+" "+this.hostIpAddr+" "+this.rule);
+
+        new Thread(realProcess).start();
+        excuting();
     }
 
     /**
      * launch a process in ProcessManager
      * @param serializedObject arg[0]: name arg[1..n] args 
      */
-    private MigratableProcess launchProcess(String[] serializedObject) {
-        if (serializedObject.length == 0) {
+    private MigratableProcess launchProcess(String[] cmdInput) {
+        if (cmdInput.length == 0) {
             return null;
         }
 
         try {
-            Class<?> obj = Class.forName(serializedObject[0]);
+            Class<?> obj = Class.forName(cmdInput[0]);
             Constructor<?> objConstructor = obj.getConstructor(String[].class);
 
             String[] args = null;
-            if (serializedObject.length > 1) {
-                System.arraycopy(serializedObject, 1, args, 0, serializedObject.length-1);
+            if (cmdInput.length > 1) {
+                System.arraycopy(cmdInput, 1, args, 0, cmdInput.length-1);
             }
             return (MigratableProcess) objConstructor.newInstance((Object[]) args);
         } catch (ClassNotFoundException e) {
@@ -62,7 +65,37 @@ public class SlaveProcessManager {
         }
         return null;
     }
+
+    public void excuting() {
+        String cmdInput = "";
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+        while (cmdInput.equals("quit")) {
+            System.out.println("cmd% ");
+            try {
+                cmdInput = in.readLine();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            if (cmdInput.equals("ps")) {
+                showProcesses();
+            } else if (cmdInput != null && !cmdInput.equals("\n")) {
+                MigratableProcess mProcess = launchProcess(cmdInput.split(""));
+                if (mProcess != null) {
+                    synchronized(processList) {
+                        processList.add(mProcess);
+                    }
+                }
+                
+            }
+        }
+    }
+
     public ArrayList<MigratableProcess> getProcessList() {
     	return processList;
     }
+
+    private void showProcesses(){}
 }

@@ -18,10 +18,11 @@ public class PMDispatchManager {
 
     public PMDispatchManager(String[] args) {
         parse(args);
-        SlaveProcessManager realProcess = this.rule == PART.MASTER ? new MasterProcessManager(this.port) : 
+        if (this.rule == PART.MASTER) {
+            new MasterProcessManager(this.port); 
+        } else {
             new SlaveProcessManager(this.port, this.hostIpAddr);
-
-        //new Thread(launchProcess());
+        }
         //System.out.println(this.port+" "+this.hostIpAddr+" "+this.rule);
     }
 

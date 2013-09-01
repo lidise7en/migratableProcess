@@ -1,9 +1,5 @@
 package rule;
 
-import java.util.ArrayList;
-
-import migration.MigratableProcess;
-
 public class Slave extends BasicPart{
 
     protected String hostIpAddr;
