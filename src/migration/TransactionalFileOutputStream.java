@@ -22,7 +22,6 @@ public class TransactionalFileOutputStream extends OutputStream
      * @param apflag, append write:true, else false
      */
     public TransactionalFileOutputStream(String outFile, boolean apflag) {
-        super();
         fileName = outFile; 
         try {
             file = new RandomAccessFile(fileName, "w");
