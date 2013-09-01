@@ -8,9 +8,8 @@ public class Slave extends BasicPart{
 
     protected String hostIpAddr;
 
-    public Slave(int port, String hostIpAddr, ArrayList<MigratableProcess> internalProcess) {
+    public Slave(int port, String hostIpAddr) {
         this.port = port;
-        this.internalProcess = internalProcess;
         this.hostIpAddr = hostIpAddr;
     }
 

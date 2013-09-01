@@ -6,9 +6,8 @@ import migration.MigratableProcess;
 
 public class Master extends BasicPart{
     
-    public Master(int port, ArrayList<MigratableProcess> internalProcess) {
+    public Master(int port) {
         this.port = port;
-        this.internalProcess = internalProcess;
     }
 
     @Override

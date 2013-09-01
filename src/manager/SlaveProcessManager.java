@@ -18,7 +18,7 @@ public class SlaveProcessManager {
 
     public SlaveProcessManager(int port, String hostIpAddr) {
         processList = new ArrayList<MigratableProcess>();
-        BasicPart realProcess = new Slave(port, hostIpAddr, processList);
+        BasicPart realProcess = new Slave(port, hostIpAddr);
         //new Thread(launchProcess());
         //System.out.println(this.port+" "+this.hostIpAddr+" "+this.rule);
     }

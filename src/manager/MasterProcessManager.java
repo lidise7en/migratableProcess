@@ -13,6 +13,6 @@ public class MasterProcessManager extends SlaveProcessManager{
 
     public MasterProcessManager(int port) {
         processList = new ArrayList<MigratableProcess>();
-        BasicPart realProcess = new Master(port, processList);
+        BasicPart realProcess = new Master(port);
     }
 }
