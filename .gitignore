@@ -2,3 +2,4 @@
 *.class
 *.swp
 *.DS_Store
+*.classpath

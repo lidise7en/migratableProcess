@@ -62,5 +62,7 @@ public class SlaveProcessManager {
         }
         return null;
     }
-
+    public ArrayList<MigratableProcess> getProcessList() {
+    	return processList;
+    }
 }
