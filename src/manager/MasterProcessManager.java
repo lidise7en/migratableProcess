@@ -8,9 +8,6 @@ import rule.Master;
 
 public class MasterProcessManager extends SlaveProcessManager{
 
-    //fields
-    private ArrayList<MigratableProcess> processList;
-
     public MasterProcessManager(int port) {
         processList = new ArrayList<MigratableProcess>();
         BasicPart realProcess = new Master(port);
@@ -19,5 +16,7 @@ public class MasterProcessManager extends SlaveProcessManager{
         excuting();
     }
 
-    private void showProcesses(){}
+    private void showProcesses(){
+        //TODO: show processes List every slave
+    }
 }

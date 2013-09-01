@@ -14,7 +14,7 @@ import rule.Slave;
 public class SlaveProcessManager {
 
     //fields
-    private ArrayList<MigratableProcess> processList;
+    protected ArrayList<MigratableProcess> processList;
 
     public SlaveProcessManager() {}
 
@@ -97,5 +97,7 @@ public class SlaveProcessManager {
     	return processList;
     }
 
-    private void showProcesses(){}
+    private void showProcesses(){
+        //TODO: show processes List
+    }
 }
