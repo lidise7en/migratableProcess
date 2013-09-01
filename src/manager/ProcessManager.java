@@ -2,6 +2,7 @@ package manager;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.Class<T>;
 import java.util.ArrayList;
 
 import migration.MigratableProcess;
@@ -128,7 +129,13 @@ public class ProcessManager {
         }
         return null;
     }
-
+    /**
+     * Create a new process with Process Manager
+     * @param Class<T> 
+     */
+    private void createNewProcess(Class newInstance) {
+        
+    }
     /**
      * produce and initiate a processManager
      * @param args
