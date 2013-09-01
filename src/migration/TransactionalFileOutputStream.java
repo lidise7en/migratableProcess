@@ -24,7 +24,7 @@ public class TransactionalFileOutputStream extends OutputStream
     public TransactionalFileOutputStream(String outFile, boolean apflag) {
         fileName = outFile; 
         try {
-            file = new RandomAccessFile(fileName, "w");
+            file = new RandomAccessFile(fileName, "rw");
             offset = apflag ? file.length() : 0;
             file.close();
         } catch (Exception e) {
@@ -39,7 +39,7 @@ public class TransactionalFileOutputStream extends OutputStream
      */
     @Override
     public void write(int content) throws IOException {
-        file = new RandomAccessFile(fileName, "w");
+        file = new RandomAccessFile(fileName, "rw");
         if (file == null) {
             throw new IOException("This file has not been opened");
         }
