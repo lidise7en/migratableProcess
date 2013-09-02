@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 import util.Constants;
 
@@ -26,7 +25,9 @@ public class Master extends BasicPart{
     public void run() {
        try{
            ServerSocket server = new ServerSocket(this.port);
+           //open response communication thread
            new Thread(new MasterResponse(this.slaveSocketList)).start();
+
            while (true) {
                Socket slaveSocket = server.accept();
                BufferedReader serverInput = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));

@@ -1,8 +1,5 @@
 package manager;
 
-import java.util.ArrayList;
-
-import migration.MigratableProcess;
 import rule.BasicPart;
 import rule.Master;
 

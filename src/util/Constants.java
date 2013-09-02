@@ -18,5 +18,5 @@ public class Constants {
     
     public static final long CONN_WAIT_TIME = 5000;
     public static final int CONN_MAX_PROCESS = 5;
-    public static final long CONN_POLL_INTERVAL = 500;
+    public static final long CONN_POLL_INTERVAL = 5000;
 }
