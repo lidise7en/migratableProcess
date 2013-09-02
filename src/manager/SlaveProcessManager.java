@@ -11,7 +11,7 @@ import migration.MigratableProcess;
 import rule.BasicPart;
 import rule.Slave;
 
-public class SlaveProcessManager {
+public class SlaveProcessManager extends MasterProcessManager{
 
     //fields
     protected ArrayList<MigratableProcess> processList;
@@ -24,6 +24,38 @@ public class SlaveProcessManager {
 
         new Thread(slaveHost).start();
         excuting();
+    }
+
+    public ArrayList<MigratableProcess> getProcessList() {
+    	return processList;
+    }
+
+    @Override
+    public void excuting() {
+        String cmdInput = "";
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+        while (cmdInput.equals("quit")) {
+            System.out.println("cmd% ");
+            try {
+                cmdInput = in.readLine();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            if (cmdInput.equals("ps")) {
+                showProcesses();
+            } else if (cmdInput != null && !cmdInput.equals("\n")) {
+                MigratableProcess mProcess = launchProcess(cmdInput.split(""));
+                if (mProcess != null) {
+                    synchronized(processList) {
+                        processList.add(mProcess);
+                    }
+                }
+                new Thread(mProcess).start();
+            }
+        }
     }
 
     /**
@@ -66,38 +98,13 @@ public class SlaveProcessManager {
         return null;
     }
 
-    public void excuting() {
-        String cmdInput = "";
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-
-        while (cmdInput.equals("quit")) {
-            System.out.println("cmd% ");
-            try {
-                cmdInput = in.readLine();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            if (cmdInput.equals("ps")) {
-                showProcesses();
-            } else if (cmdInput != null && !cmdInput.equals("\n")) {
-                MigratableProcess mProcess = launchProcess(cmdInput.split(""));
-                if (mProcess != null) {
-                    synchronized(processList) {
-                        processList.add(mProcess);
-                    }
-                }
-                new Thread(mProcess).start();
+    private void showProcesses() {
+        if (this.processList.size() == 0) {
+            System.out.println("No processes is running");
+        } else {
+            for (MigratableProcess mProcess : this.processList) {
+                System.out.println(mProcess.toString());
             }
         }
-    }
-
-    public ArrayList<MigratableProcess> getProcessList() {
-    	return processList;
-    }
-
-    public void showProcesses(){
-        //TODO: show processes List
     }
 }

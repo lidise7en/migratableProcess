@@ -42,4 +42,7 @@ public class TransactionalFileInputStream extends InputStream
         return lastContent;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
 }

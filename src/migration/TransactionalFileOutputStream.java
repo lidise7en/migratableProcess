@@ -49,4 +49,7 @@ public class TransactionalFileOutputStream extends OutputStream
         file.close();
     }
 
+    public String getFileName() {
+        return fileName;
+    }
 }
