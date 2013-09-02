@@ -88,7 +88,7 @@ public class SlaveProcessManager {
                         processList.add(mProcess);
                     }
                 }
-                
+                new Thread(mProcess).start();
             }
         }
     }
@@ -97,7 +97,7 @@ public class SlaveProcessManager {
     	return processList;
     }
 
-    private void showProcesses(){
+    public void showProcesses(){
         //TODO: show processes List
     }
 }

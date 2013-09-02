@@ -1,12 +1,9 @@
 package manager;
 
+import util.Constants;
+
 
 public class PMDispatchManager {
-    //constants and enums
-    private static final String ipAddrRE = "\\b((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\."+
-            "((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\.((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\."+
-                    "((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\b";
-    private static final int MAX_PORT_NUM = 65535;
     private enum PART{
         MASTER, SLAVE;
     }
@@ -47,7 +44,7 @@ public class PMDispatchManager {
                     throw new Exception();
                 }
 
-                if (args[2].matches(ipAddrRE)) {
+                if (args[2].matches(Constants.ipAddrRE)) {
                     hostIpAddr = args[2];
                 } else {
                    throw new Exception();
@@ -74,7 +71,7 @@ public class PMDispatchManager {
     //small helper function to parse port number
     private int parsePort(String portString) throws Exception {
         int portTmp = Integer.parseInt(portString);
-        if (portTmp < 0 || portTmp > MAX_PORT_NUM) {
+        if (portTmp < 0 || portTmp > Constants.MAX_PORT_NUM) {
             throw new Exception();
         }
         return portTmp;

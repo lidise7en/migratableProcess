@@ -16,7 +16,8 @@ public class MasterProcessManager extends SlaveProcessManager{
         excuting();
     }
 
-    private void showProcesses(){
+    @Override
+    public void showProcesses(){
         //TODO: show processes List every slave
     }
 }
