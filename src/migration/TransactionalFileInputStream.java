@@ -42,6 +42,42 @@ public class TransactionalFileInputStream extends InputStream
         return lastContent;
     }
 
+    @Override
+    public int read(byte[] b) throws IOException {
+        //not reach the end already
+        if (lastContent != -1) {
+
+            file = new RandomAccessFile(fileName, "r");
+            if (file == null) {
+                throw new IOException("This file has not been opened");
+            }
+
+            file.seek(offset);
+            lastContent = file.read(b);
+            file.close();
+            offset += b.length;
+        }
+        return lastContent;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        //not reach the end already
+        if (lastContent != -1) {
+
+            file = new RandomAccessFile(fileName, "r");
+            if (file == null) {
+                throw new IOException("This file has not been opened");
+            }
+
+            file.seek(offset);
+            lastContent = file.read(b, off, len);
+            file.close();
+            offset += len;
+        }
+        return lastContent;
+    }
+
     public String getFileName() {
         return fileName;
     }

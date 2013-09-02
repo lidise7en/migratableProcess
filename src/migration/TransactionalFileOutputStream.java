@@ -49,6 +49,32 @@ public class TransactionalFileOutputStream extends OutputStream
         file.close();
     }
 
+    @Override
+    public void write(byte[] content) throws IOException {
+        file = new RandomAccessFile(fileName, "rw");
+        if (file == null) {
+            throw new IOException("This file has not been opened");
+        }
+
+        file.seek(offset);
+        file.write(content);
+        file.close();
+        offset += content.length;
+    }
+
+    @Override
+    public void write(byte[] content, int off, int len) throws IOException {
+        file = new RandomAccessFile(fileName, "rw");
+        if (file == null) {
+            throw new IOException("This file has not been opened");
+        }
+
+        file.seek(offset);
+        file.write(content, off, len);
+        file.close();
+        offset += len;
+    }
+
     public String getFileName() {
         return fileName;
     }
