@@ -87,12 +87,24 @@ public class MasterResponse implements Runnable {
 	}
 
 	private void migrateProcess(Socket overloadSocket, Socket freeSocket) throws IOException {
-        PrintWriter out = new PrintWriter(overloadSocket.getOutputStream(), true);
-        out.println(Constants.CONN_LEAVE);
-        BufferedReader in = new BufferedReader(new InputStreamReader(overloadSocket.getInputStream()));
-        String serializedObj = in.readLine();
-        PrintWriter emit = new PrintWriter(freeSocket.getOutputStream(), true);
-        emit.println(serializedObj);
-        emit.flush();
+        //connect to overload slave to write file
+	    PrintWriter overloadOut = new PrintWriter(overloadSocket.getOutputStream(), true);
+        overloadOut.println(Constants.CONN_LEAVE);
+        overloadOut.flush();
+        BufferedReader overloadIn = new BufferedReader(new InputStreamReader(overloadSocket.getInputStream()));
+        String response = overloadIn.readLine();
+        long time = System.currentTimeMillis();
+        while (response == null && System.currentTimeMillis() - time < Constants.CONN_WAIT_TIME) {
+            response = overloadIn.readLine();
+        }
+
+        //connect to free slave to write file
+        if (response != null) {
+            PrintWriter emit = new PrintWriter(freeSocket.getOutputStream(), true);
+            emit.println(Constants.CONN_GET + " "+ response);
+            emit.flush();
+        } else {
+            throw new IOException("Connection Timout: Getting filename from slave");
+        }
 	}
 }

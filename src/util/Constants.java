@@ -15,8 +15,14 @@ public class Constants {
     public static final String CONN_REGISTER = "R";
     public static final String CONN_BUILD = "B";
     public static final String CONN_LEAVE = "L";
+    public static final String CONN_GET = "G";
     
     public static final long CONN_WAIT_TIME = 5000;
     public static final int CONN_MAX_PROCESS = 5;
     public static final long CONN_POLL_INTERVAL = 5000;
+
+    /*
+     * IO constants 
+     */
+    public static final String FILE_FOLDER = System.getProperty("user.dir");
 }

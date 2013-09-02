@@ -1,15 +1,23 @@
 package rule;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Random;
 
-import util.Constants;
 import migration.MigratableProcess;
+import util.Constants;
 
 public class Slave extends BasicPart{
 
@@ -46,47 +54,86 @@ public class Slave extends BasicPart{
             if (message.equals(Constants.CONN_BUILD)) {
             	System.out.println("Connection to master has built.");
                 while(true) {
-                    
+                    //send process number
                     PrintWriter processNum = new PrintWriter(socketToServer.getOutputStream(), true);
                     processNum.println(processlist.size());
                     processNum.flush();
+
+                    //receive leave call or get call
                     BufferedReader inOrder = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
                     String migrateMsg = null;
                     long tim = System.currentTimeMillis();
-                    while(migrateMsg == null || System.currentTimeMillis() - tim < Constants.CONN_WAIT_TIME) {
+                    while(migrateMsg == null && System.currentTimeMillis() - tim < Constants.CONN_WAIT_TIME) {
                     	migrateMsg = inOrder.readLine();
                     }
-                    if(migrateMsg == Constants.CONN_LEAVE) {
-                    	MigratableProcess removedPro = this.processlist.remove(0);
-                    	removedPro.suspend();
-                    	String serializedPro = SerializePro(removedPro);
-                    	PrintWriter leaveProcess = new PrintWriter(socketToServer.getOutputStream(), true);
-                    	leaveProcess.println(serializedPro);
-                    	leaveProcess.flush();
+
+                    if(migrateMsg != null && migrateMsg.equals(Constants.CONN_LEAVE)) {
+                        synchronized(this.processlist){
+                            //serialize object and send back filename
+                            MigratableProcess removedPro = this.processlist.remove(0);
+                            removedPro.suspend();
+                            String filename = SerializeProcess(removedPro);
+                            PrintWriter leaveProcess = new PrintWriter(socketToServer.getOutputStream(), true);
+                            leaveProcess.println(filename);
+                            leaveProcess.flush();
+                        }
                     }
-                    else if(migrateMsg != null) {
-                    	MigratableProcess newProcess = DeserializePro(migrateMsg);
+                    else if(migrateMsg != null && migrateMsg.startsWith(Constants.CONN_GET)) {
+                        //receive filename and deserialize it
+                        String filename = migrateMsg.split(" ")[1];
+                    	MigratableProcess newProcess = DeserializeProcess(filename);
                     	new Thread(newProcess).start();
-                    	this.processlist.add(newProcess);
+                    	synchronized(this.processlist){
+                    	    this.processlist.add(newProcess);
+                    	}
                     }
                 }
             }
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            System.out.println("Connection build aborted...");
+            System.exit(0);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            System.out.println("Connection build aborted...");
+            System.exit(0);
         }
-        
-        
+      
     }
-    public String SerializePro(MigratableProcess migratablePro) {
-    	//TODO serialize the process
-    	return null;
+
+    public static String SerializeProcess(MigratableProcess migratablePro) {
+        String filename = null;
+
+        try {
+            Random rand = new Random();
+            BigInteger bint = new BigInteger(32, rand);
+            filename = Constants.FILE_FOLDER + File.separator + bint.toString() + ".dat";
+
+            //write serialized object into file
+            ObjectOutput s = new ObjectOutputStream(new FileOutputStream(filename));
+            s.writeObject(migratablePro);
+            s.flush();
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return filename;
     }
-    public MigratableProcess DeserializePro(String serializedPro) {
-    	//TODO deserialize the process
-    	return null;
+
+    @SuppressWarnings("resource")
+    public static MigratableProcess DeserializeProcess(String filename) {
+        ObjectInputStream in;
+        MigratableProcess mProcess = null;
+        try {
+            in = new ObjectInputStream(new FileInputStream(filename));
+            mProcess = (MigratableProcess)in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return mProcess;
     }
 }
