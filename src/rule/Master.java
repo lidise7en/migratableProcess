@@ -14,7 +14,7 @@ import util.Constants;
 public class Master extends BasicPart{
 
     //fields
-    public List<Socket> slaveSocketList;
+    public ArrayList<Socket> slaveSocketList;
 
     public Master(int port) {
         this.port = port;
@@ -26,7 +26,7 @@ public class Master extends BasicPart{
     public void run() {
        try{
            ServerSocket server = new ServerSocket(this.port);
-
+           new Thread(new MasterResponse(this.slaveSocketList)).start();
            while (true) {
                Socket slaveSocket = server.accept();
                BufferedReader serverInput = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
