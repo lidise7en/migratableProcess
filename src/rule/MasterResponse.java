@@ -66,22 +66,23 @@ public class MasterResponse implements Runnable {
 	    int totalProcessNum = 0;
 	    
         for(int i = 0; i<slaveSocketList.size(); i++) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(slaveSocketList.get(i).getInputStream()));
-            String response = in.readLine();
-            if(response != null) {
-                int processNum = Integer.parseInt(response); 
-                if ( processNum > Constants.CONN_MAX_PROCESS) {
-                    overloadMap.put(i, processNum - Constants.CONN_MAX_PROCESS);
-                }
-                else if (processNum < Constants.CONN_MAX_PROCESS){
-                    freeSlaveMap.put(i, Constants.CONN_MAX_PROCESS - processNum);
-                }
-                totalProcessNum += processNum;
-            } else {
-                //can not get response, and max number
-                totalProcessNum += Constants.CONN_MAX_PROCESS;
-                System.out.println("Can not get process number from "+ i + "th slave");
+        	PrintWriter sendReq = new PrintWriter(slaveSocketList.get(i).getOutputStream(), true);
+        	sendReq.println(Constants.CONN_REQ);
+        	sendReq.flush();
+        	String response = null;
+        	while(response == null) {
+        		BufferedReader in = new BufferedReader(new InputStreamReader(slaveSocketList.get(i).getInputStream()));
+        		response = in.readLine();
+        	}
+            int processNum = Integer.parseInt(response); 
+            if ( processNum > Constants.CONN_MAX_PROCESS) {
+                overloadMap.put(i, processNum - Constants.CONN_MAX_PROCESS);
             }
+            else if (processNum < Constants.CONN_MAX_PROCESS){
+                freeSlaveMap.put(i, Constants.CONN_MAX_PROCESS - processNum);
+            }
+            totalProcessNum += processNum;
+           
         }
         return totalProcessNum;
 	}

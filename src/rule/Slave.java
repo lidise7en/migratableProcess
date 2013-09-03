@@ -54,38 +54,49 @@ public class Slave extends BasicPart{
             if (message.equals(Constants.CONN_BUILD)) {
             	System.out.println("Connection to master has built.");
                 while(true) {
-                    //send process number
-                    PrintWriter processNum = new PrintWriter(socketToServer.getOutputStream(), true);
-                    processNum.println(processlist.size());
-                    processNum.flush();
-
-                    //receive leave call or get call
-                    BufferedReader inOrder = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
-                    String migrateMsg = null;
-                    long tim = System.currentTimeMillis();
-                    while(migrateMsg == null && System.currentTimeMillis() - tim < Constants.CONN_WAIT_TIME) {
-                    	migrateMsg = inOrder.readLine();
+                	//wait for process number request
+                	BufferedReader numReq = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
+                    String numRequest = null;
+                    while(numRequest == null) {
+                    	numRequest = numReq.readLine();
                     }
+                    if(numRequest == Constants.CONN_REQ) {
+                    	//send process number
+                    	PrintWriter processNum = new PrintWriter(socketToServer.getOutputStream(), true);
+                    	processNum.println(processlist.size());
+                    	processNum.flush();
 
-                    if(migrateMsg != null && migrateMsg.equals(Constants.CONN_LEAVE)) {
-                        synchronized(this.processlist){
-                            //serialize object and send back filename
-                            MigratableProcess removedPro = this.processlist.remove(0);
-                            removedPro.suspend();
-                            String filename = SerializeProcess(removedPro);
-                            PrintWriter leaveProcess = new PrintWriter(socketToServer.getOutputStream(), true);
-                            leaveProcess.println(filename);
-                            leaveProcess.flush();
-                        }
-                    }
-                    else if(migrateMsg != null && migrateMsg.startsWith(Constants.CONN_GET)) {
-                        //receive filename and deserialize it
-                        String filename = migrateMsg.split(" ")[1];
-                    	MigratableProcess newProcess = DeserializeProcess(filename);
-                    	new Thread(newProcess).start();
-                    	synchronized(this.processlist){
-                    	    this.processlist.add(newProcess);
+                    	//receive leave call or get call
+                    	BufferedReader inOrder = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
+                    	String migrateMsg = null;
+                    	long tim = System.currentTimeMillis();
+                    	while(migrateMsg == null && System.currentTimeMillis() - tim < Constants.CONN_WAIT_TIME) {
+                    		migrateMsg = inOrder.readLine();
                     	}
+
+                    	if(migrateMsg != null && migrateMsg.equals(Constants.CONN_LEAVE)) {
+                    		synchronized(this.processlist){
+                    			//serialize object and send back filename
+                    			MigratableProcess removedPro = this.processlist.remove(0);
+                    			removedPro.suspend();
+                    			String filename = SerializeProcess(removedPro);
+                    			PrintWriter leaveProcess = new PrintWriter(socketToServer.getOutputStream(), true);
+                    			leaveProcess.println(filename);
+                    			leaveProcess.flush();
+                    		}
+                    	}
+                    	else if(migrateMsg != null && migrateMsg.startsWith(Constants.CONN_GET)) {
+                    		//receive filename and deserialize it
+                    		String filename = migrateMsg.split(" ")[1];
+                    		MigratableProcess newProcess = DeserializeProcess(filename);
+                    		new Thread(newProcess).start();
+                    		synchronized(this.processlist){
+                    			this.processlist.add(newProcess);
+                    		}
+                    	}
+                    }
+                    else {
+                    	System.out.println("Invalid message from master.");
                     }
                 }
             }

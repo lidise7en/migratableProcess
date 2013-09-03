@@ -14,6 +14,7 @@ public class Constants {
      */
     public static final String CONN_REGISTER = "R";
     public static final String CONN_BUILD = "B";
+    public static final String CONN_REQ = "REQ";
     public static final String CONN_LEAVE = "L";
     public static final String CONN_GET = "G";
     
