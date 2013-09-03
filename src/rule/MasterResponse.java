@@ -70,10 +70,19 @@ public class MasterResponse implements Runnable {
         	sendReq.println(Constants.CONN_REQ);
         	sendReq.flush();
         	String response = null;
-        	while(response == null) {
+        	long timer = System.currentTimeMillis();
+        	while(response == null && System.currentTimeMillis() - timer < Constants.CONN_WAIT_TIME) {
         		BufferedReader in = new BufferedReader(new InputStreamReader(slaveSocketList.get(i).getInputStream()));
         		response = in.readLine();
         	}
+
+        	//response timeout
+        	if (response == null) {
+        	    totalProcessNum += Constants.CONN_MAX_PROCESS;
+        	    System.out.println("Can not get process number from "+ i + "th slave");
+        	    continue;
+        	}
+        	//response received
             int processNum = Integer.parseInt(response); 
             if ( processNum > Constants.CONN_MAX_PROCESS) {
                 overloadMap.put(i, processNum - Constants.CONN_MAX_PROCESS);
