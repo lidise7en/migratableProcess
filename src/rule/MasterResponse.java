@@ -29,33 +29,33 @@ public class MasterResponse implements Runnable {
 	public void run() {
 		try {
 			while(true) {
-				//System.out.println("size is " + this.slaveSocketList.size());
+				System.out.println("size is " + this.slaveSocketList.size());
 			    int totalProcessNum = fillSlaveMap();
 
 			    if (totalProcessNum > this.slaveSocketList.size() * Constants.CONN_MAX_PROCESS) {
 			        System.out.println("The whole System is overloaded.");
-			        continue;
 			    }
-
-			    //do load balance
-			    Iterator<Entry<Integer, Integer>> ito = overloadMap.entrySet().iterator();
-			    Entry<Integer, Integer> oEntry;
-				while (ito.hasNext()){
-				    oEntry = ito.next();
-				    for (Entry<Integer, Integer> fEntry : freeSlaveMap.entrySet()) {
-				        while (fEntry.getValue() > 0) {
-				            if (oEntry.getValue() > 0) {
-				                migrateProcess(slaveSocketList.get(oEntry.getKey()), slaveSocketList.get(fEntry.getKey()));
-				                oEntry.setValue(oEntry.getValue()-1);
-				                fEntry.setValue(fEntry.getValue()-1);
-				            } else if (ito.hasNext()) {
-				                oEntry = ito.next();
-				            } else {
-				                break;
-				            }
-				        }
-				    }
-				}
+			    else {
+			    	//do load balance
+			    	Iterator<Entry<Integer, Integer>> ito = overloadMap.entrySet().iterator();
+			    	Entry<Integer, Integer> oEntry;
+			    	while (ito.hasNext()){
+			    		oEntry = ito.next();
+			    		for (Entry<Integer, Integer> fEntry : freeSlaveMap.entrySet()) {
+			    			while (fEntry.getValue() > 0) {
+			    				if (oEntry.getValue() > 0) {
+			    					migrateProcess(slaveSocketList.get(oEntry.getKey()), slaveSocketList.get(fEntry.getKey()));
+			    					oEntry.setValue(oEntry.getValue()-1);
+			    					fEntry.setValue(fEntry.getValue()-1);
+			    				} else if (ito.hasNext()) {
+			    					oEntry = ito.next();
+			    				} else {
+			    					break;
+			    				}
+			    			}
+			    		}
+			    	}
+			    }
 				for(int i = 0;i < this.slaveSocketList.size();i ++) {
 					PrintWriter sendLoadFinish = new PrintWriter(slaveSocketList.get(i).getOutputStream(), true);
 					sendLoadFinish.println(Constants.CONN_LOADFINISH);
