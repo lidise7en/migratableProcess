@@ -29,6 +29,7 @@ public class MasterResponse implements Runnable {
 	public void run() {
 		try {
 			while(true) {
+				//System.out.println("size is " + this.slaveSocketList.size());
 			    int totalProcessNum = fillSlaveMap();
 
 			    if (totalProcessNum > this.slaveSocketList.size() * Constants.CONN_MAX_PROCESS) {
@@ -55,6 +56,11 @@ public class MasterResponse implements Runnable {
 				        }
 				    }
 				}
+				for(int i = 0;i < this.slaveSocketList.size();i ++) {
+					PrintWriter sendLoadFinish = new PrintWriter(slaveSocketList.get(i).getOutputStream(), true);
+					sendLoadFinish.println(Constants.CONN_LOADFINISH);
+					sendLoadFinish.flush();
+				}
 				Thread.sleep(Constants.CONN_POLL_INTERVAL);
 			}
 		} catch(Exception e) {
@@ -64,16 +70,21 @@ public class MasterResponse implements Runnable {
 
 	private int fillSlaveMap() throws NumberFormatException, IOException{
 	    int totalProcessNum = 0;
-	    
+	    if(slaveSocketList.size() == 0)
+	    	return 0;
         for(int i = 0; i<slaveSocketList.size(); i++) {
         	PrintWriter sendReq = new PrintWriter(slaveSocketList.get(i).getOutputStream(), true);
         	sendReq.println(Constants.CONN_REQ);
         	sendReq.flush();
+        	//System.out.println("Enter here");
         	String response = null;
         	long timer = System.currentTimeMillis();
         	while(response == null && System.currentTimeMillis() - timer < Constants.CONN_WAIT_TIME) {
         		BufferedReader in = new BufferedReader(new InputStreamReader(slaveSocketList.get(i).getInputStream()));
+        		//System.out.println("Before get the response");
         		response = in.readLine();
+        		//System.out.println("response is" + response);
+        		//System.out.println("After get the response");
         	}
 
         	//response timeout

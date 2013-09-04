@@ -63,10 +63,11 @@ public class Slave extends BasicPart{
                     }
                     if(numRequest.equals(Constants.CONN_REQ)) {
                     	//send process number
+                    	//System.out.println("Slave receive the REQ message!");
                     	PrintWriter processNum = new PrintWriter(socketToServer.getOutputStream(), true);
                     	processNum.println(processlist.size());
                     	processNum.flush();
-
+                    	//System.out.println("Slave sent the number of processes");
                     	//receive leave call or get call
                     	BufferedReader inOrder = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
                     	migrateMsg = null;
@@ -97,7 +98,7 @@ public class Slave extends BasicPart{
                     	}
                     }
                     else {
-                    	System.out.println("Invalid message from master: "+numRequest);
+                    	System.out.println("LoadFinish msg from master.Ignore");
                     }
                 }
             }
