@@ -15,12 +15,12 @@ public class PMDispatchManager {
 
     public PMDispatchManager(String[] args) {
         parse(args);
+        System.out.println(this.port+" "+this.hostIpAddr+" "+this.rule);
         if (this.rule == PART.MASTER) {
             new MasterProcessManager(this.port); 
         } else {
             new SlaveProcessManager(this.port, this.hostIpAddr);
         }
-        //System.out.println(this.port+" "+this.hostIpAddr+" "+this.rule);
     }
 
     /**
@@ -83,5 +83,6 @@ public class PMDispatchManager {
      */
     public static void main(String[] args) {
        new PMDispatchManager(args);
+       System.exit(0);
     }
 }

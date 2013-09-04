@@ -20,9 +20,8 @@ public class MasterProcessManager {
     public void excuting() {
         String cmdInput = "";
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-
-        while (cmdInput.equals("quit")) {
-            System.out.println("cmd% ");
+        while (!cmdInput.equals("quit")) {
+            System.out.print("cmd% ");
             try {
                 cmdInput = in.readLine();
             } catch (IOException e) {
