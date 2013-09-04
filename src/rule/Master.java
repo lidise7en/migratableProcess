@@ -58,7 +58,7 @@ public class Master extends BasicPart{
        } catch (IOException e) {
            e.printStackTrace();
        }
-        
+
     }
 
     public ArrayList<Socket> getSocketList() {

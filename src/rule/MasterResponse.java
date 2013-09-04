@@ -79,12 +79,10 @@ public class MasterResponse implements Runnable {
         	//System.out.println("Enter here");
         	String response = null;
         	long timer = System.currentTimeMillis();
-        	while(response == null && System.currentTimeMillis() - timer < Constants.CONN_WAIT_TIME) {
+        	while((response == null || response.equals(Constants.CONN_QUIT)) && 
+        			System.currentTimeMillis() - timer < Constants.CONN_WAIT_TIME) {
         		BufferedReader in = new BufferedReader(new InputStreamReader(slaveSocketList.get(i).getInputStream()));
-        		//System.out.println("Before get the response");
         		response = in.readLine();
-        		//System.out.println("response is" + response);
-        		//System.out.println("After get the response");
         	}
 
         	//response timeout
@@ -113,9 +111,10 @@ public class MasterResponse implements Runnable {
         overloadOut.println(Constants.CONN_LEAVE);
         overloadOut.flush();
         BufferedReader overloadIn = new BufferedReader(new InputStreamReader(overloadSocket.getInputStream()));
-        String response = overloadIn.readLine();
+        String response = null;
         long time = System.currentTimeMillis();
-        while (response == null && System.currentTimeMillis() - time < Constants.CONN_WAIT_TIME) {
+        while ((response == null || response.equals(Constants.CONN_QUIT)) && 
+        	System.currentTimeMillis() - time < Constants.CONN_WAIT_TIME) {
             response = overloadIn.readLine();
         }
 
