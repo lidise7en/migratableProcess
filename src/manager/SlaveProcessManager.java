@@ -50,10 +50,10 @@ public class SlaveProcessManager extends MasterProcessManager{
             	break;
             }
 
-            if (cmdInput.equals("ps")) {
+            if (cmdInput.equals("ps")) { 
                 showProcesses();
             } else if (cmdInput != null && !cmdInput.equals("\n")) {
-                MigratableProcess mProcess = launchProcess(cmdInput.split(""));
+                MigratableProcess mProcess = launchProcess(cmdInput.split(" "));
                 if (mProcess != null) {
                     synchronized(processList) {
                         processList.add(mProcess);
@@ -75,7 +75,7 @@ public class SlaveProcessManager extends MasterProcessManager{
         }
 
         try {
-            Class<?> obj = Class.forName(cmdInput[0]);
+            Class<?> obj = Class.forName(Constants.CLASS_PREFIX+cmdInput[0].toString());
             Constructor<?> objConstructor = obj.getConstructor(String[].class);
 
             String[] args = null;

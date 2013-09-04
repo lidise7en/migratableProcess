@@ -27,4 +27,5 @@ public class Constants {
      * IO constants 
      */
     public static final String FILE_FOLDER = System.getProperty("user.dir");
+    public static final String CLASS_PREFIX = "example.";
 }
