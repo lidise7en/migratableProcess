@@ -83,25 +83,11 @@ public class SlaveProcessManager extends MasterProcessManager{
                 System.arraycopy(cmdInput, 1, args, 0, cmdInput.length-1);
             }
             return (MigratableProcess) objConstructor.newInstance((Object[]) args);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException |
+        		IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NoSuchMethodException | SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+            System.out.println("Invalid command!");
+        } 
         return null;
     }
 
