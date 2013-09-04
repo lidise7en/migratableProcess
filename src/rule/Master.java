@@ -13,7 +13,7 @@ import util.Constants;
 public class Master extends BasicPart{
 
     //fields
-    public ArrayList<Socket> slaveSocketList;
+    private ArrayList<Socket> slaveSocketList;
 
     public Master(int port) {
         this.port = port;
@@ -25,24 +25,34 @@ public class Master extends BasicPart{
     public void run() {
        try{
            ServerSocket server = new ServerSocket(this.port);
+           MasterResponse msgHandler = new MasterResponse(this.slaveSocketList);
            //open response communication thread
-           new Thread(new MasterResponse(this.slaveSocketList)).start();
+           Thread msgThread = new Thread(msgHandler);
+           msgThread.start();
 
            while (true) {
                Socket slaveSocket = server.accept();
                BufferedReader serverInput = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
                PrintWriter serverOutput = new PrintWriter(slaveSocket.getOutputStream(), true);
 
-               //slave register
+               //slave register, when effective msg comes load balance thread should hang
                String message = serverInput.readLine();
                if (message != null && message.equals(Constants.CONN_REGISTER)) {
                    synchronized(slaveSocketList) {
                        slaveSocketList.add(slaveSocket);
-                       
+                       msgHandler.setSocketList(slaveSocketList);
                    }
                    //connection build, response
                    serverOutput.println(Constants.CONN_BUILD);
                    serverOutput.flush();
+               //slave disconnect
+               }else if (message != null && message.equals(Constants.CONN_QUIT)) {
+            	   synchronized(slaveSocketList) {
+                       slaveSocketList.remove(slaveSocket);
+                       msgHandler.setSocketList(slaveSocketList);
+                       slaveSocket.close();
+                       System.out.println("An Slave has left us...");
+                   }
                }
            }
        } catch (IOException e) {
@@ -51,4 +61,7 @@ public class Master extends BasicPart{
         
     }
 
+    public ArrayList<Socket> getSocketList() {
+    	return this.slaveSocketList;
+    }
 }

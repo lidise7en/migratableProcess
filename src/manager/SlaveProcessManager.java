@@ -3,13 +3,15 @@ package manager;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import migration.MigratableProcess;
-import rule.BasicPart;
 import rule.Slave;
+import util.Constants;
 
 public class SlaveProcessManager extends MasterProcessManager{
 
@@ -20,9 +22,9 @@ public class SlaveProcessManager extends MasterProcessManager{
 
     public SlaveProcessManager(int port, String hostIpAddr) {
         processList = new ArrayList<MigratableProcess>();
-        BasicPart slaveHost = new Slave(port, hostIpAddr, this.processList);
+        host = new Slave(port, hostIpAddr, this.processList);
 
-        new Thread(slaveHost).start();
+        new Thread(host).start();
         excuting();
     }
 
@@ -44,6 +46,10 @@ public class SlaveProcessManager extends MasterProcessManager{
                 e.printStackTrace();
             }
 
+            if (cmdInput.equals("quit")) {
+            	break;
+            }
+
             if (cmdInput.equals("ps")) {
                 showProcesses();
             } else if (cmdInput != null && !cmdInput.equals("\n")) {
@@ -56,6 +62,7 @@ public class SlaveProcessManager extends MasterProcessManager{
                 new Thread(mProcess).start();
             }
         }
+        disconnection();
     }
 
     /**
@@ -106,5 +113,18 @@ public class SlaveProcessManager extends MasterProcessManager{
                 System.out.println(mProcess.toString());
             }
         }
+    }
+
+    @Override
+    public void disconnection() {
+    	Socket hostSocket = ((Slave)host).getSocket();
+        try {
+            PrintWriter serverOutput = new PrintWriter(hostSocket.getOutputStream(), true);
+            serverOutput.println(Constants.CONN_QUIT);
+            serverOutput.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }

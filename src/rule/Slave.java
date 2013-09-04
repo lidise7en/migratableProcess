@@ -22,7 +22,8 @@ import util.Constants;
 public class Slave extends BasicPart{
 
     protected String hostIpAddr;
-    private Socket slaveSocket;
+    //private Socket slaveSocket;
+    private Socket socketToServer;
     private ArrayList<MigratableProcess> processlist;
     public Slave(int port, String hostIpAddr, ArrayList<MigratableProcess> processlist) {
         this.port = port;
@@ -30,13 +31,13 @@ public class Slave extends BasicPart{
         this.processlist = processlist;
     }
 
-    @SuppressWarnings("resource")
     @Override
     public void run() {
         try {
-            Socket socketToServer = new Socket(this.hostIpAddr, this.port);
+        	socketToServer = new Socket(this.hostIpAddr, this.port);
             PrintWriter out = new PrintWriter(socketToServer.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
+            String migrateMsg = null;
 
             //register
             out.println(Constants.CONN_REGISTER);
@@ -55,20 +56,20 @@ public class Slave extends BasicPart{
             	System.out.println("Connection to master has built.");
                 while(true) {
                 	//wait for process number request
-                	BufferedReader numReq = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
+                	BufferedReader numReq = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
                     String numRequest = null;
                     while(numRequest == null) {
                     	numRequest = numReq.readLine();
                     }
-                    if(numRequest == Constants.CONN_REQ) {
+                    if(numRequest.equals(Constants.CONN_REQ)) {
                     	//send process number
                     	PrintWriter processNum = new PrintWriter(socketToServer.getOutputStream(), true);
                     	processNum.println(processlist.size());
                     	processNum.flush();
 
                     	//receive leave call or get call
-                    	BufferedReader inOrder = new BufferedReader(new InputStreamReader(slaveSocket.getInputStream()));
-                    	String migrateMsg = null;
+                    	BufferedReader inOrder = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
+                    	migrateMsg = null;
                     	long tim = System.currentTimeMillis();
                     	while(migrateMsg == null && System.currentTimeMillis() - tim < Constants.CONN_WAIT_TIME) {
                     		migrateMsg = inOrder.readLine();
@@ -96,7 +97,7 @@ public class Slave extends BasicPart{
                     	}
                     }
                     else {
-                    	System.out.println("Invalid message from master.");
+                    	System.out.println("Invalid message from master: "+numRequest);
                     }
                 }
             }
@@ -146,5 +147,9 @@ public class Slave extends BasicPart{
             e.printStackTrace();
         }
         return mProcess;
+    }
+
+    public Socket getSocket() {
+    	return socketToServer;
     }
 }

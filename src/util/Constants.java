@@ -17,8 +17,9 @@ public class Constants {
     public static final String CONN_REQ = "REQ";
     public static final String CONN_LEAVE = "L";
     public static final String CONN_GET = "G";
+    public static final String CONN_QUIT = "Q";
     
-    public static final long CONN_WAIT_TIME = 5000;
+    public static final long CONN_WAIT_TIME = 2000;
     public static final int CONN_MAX_PROCESS = 5;
     public static final long CONN_POLL_INTERVAL = 5000;
 

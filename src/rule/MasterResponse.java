@@ -117,4 +117,8 @@ public class MasterResponse implements Runnable {
             throw new IOException("Connection Timout: Getting filename from slave");
         }
 	}
+
+	public void setSocketList(ArrayList<Socket> slaveSocketList) {
+		this.slaveSocketList = slaveSocketList;
+	}
 }
