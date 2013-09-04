@@ -78,15 +78,20 @@ public class SlaveProcessManager extends MasterProcessManager{
             Class<?> obj = Class.forName(Constants.CLASS_PREFIX+cmdInput[0].toString());
             Constructor<?> objConstructor = obj.getConstructor(String[].class);
 
-            String[] args = null;
+            String[] args = new String[cmdInput.length];
+            
             if (cmdInput.length > 1) {
-                System.arraycopy(cmdInput, 1, args, 0, cmdInput.length-1);
+                System.arraycopy(cmdInput, 0, args, 0, cmdInput.length);
             }
-            return (MigratableProcess) objConstructor.newInstance((Object[]) args);
+            for(String e : args) {
+            	System.out.println(e);
+            }
+            return (MigratableProcess) objConstructor.newInstance((Object) args);
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException |
         		IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             // TODO Auto-generated catch block
             System.out.println("Invalid command!");
+            e.printStackTrace();
         } 
         return null;
     }
