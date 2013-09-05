@@ -18,18 +18,20 @@ public class MasterResponse implements Runnable {
 	private ArrayList<Socket> slaveSocketList;
     private Map<Integer, Integer> freeSlaveMap;
     private Map<Integer, Integer> overloadMap;
+    private ArrayList<Socket> disconnList;
 
 	public MasterResponse(ArrayList<Socket> slaveSocketList) {
 		this.slaveSocketList = slaveSocketList;
-		this.freeSlaveMap  = new HashMap<Integer, Integer>();
-		this.overloadMap  = new HashMap<Integer, Integer>();
 	}
 
 	@Override
 	public void run() {
 		try {
 			while(true) {
+				this.freeSlaveMap  = new HashMap<Integer, Integer>();
+				this.overloadMap  = new HashMap<Integer, Integer>();
 				System.out.println("size is " + this.slaveSocketList.size());
+				disconnList = new ArrayList<Socket>();
 			    int totalProcessNum = fillSlaveMap();
 
 			    if (totalProcessNum > this.slaveSocketList.size() * Constants.CONN_MAX_PROCESS) {
@@ -61,6 +63,18 @@ public class MasterResponse implements Runnable {
 					sendLoadFinish.println(Constants.CONN_LOADFINISH);
 					sendLoadFinish.flush();
 				}
+
+				//disconnect msg
+				for(Socket sock : disconnList) {
+					PrintWriter disconn = new PrintWriter(sock.getOutputStream(), true);
+					disconn.println(Constants.CONN_QUIT);
+					synchronized(slaveSocketList) {
+						slaveSocketList.remove(sock);
+					}
+                    System.out.println("An Slave has left us...");
+					disconn.flush();
+				}
+				
 				Thread.sleep(Constants.CONN_POLL_INTERVAL);
 			}
 		} catch(Exception e) {
@@ -83,6 +97,9 @@ public class MasterResponse implements Runnable {
         			System.currentTimeMillis() - timer < Constants.CONN_WAIT_TIME) {
         		BufferedReader in = new BufferedReader(new InputStreamReader(slaveSocketList.get(i).getInputStream()));
         		response = in.readLine();
+        		if (response != null && response.equals(Constants.CONN_QUIT)) {
+        			disconnList.add(slaveSocketList.get(i));
+        		}
         	}
 
         	//response timeout
@@ -116,6 +133,9 @@ public class MasterResponse implements Runnable {
         while ((response == null || response.equals(Constants.CONN_QUIT)) && 
         	System.currentTimeMillis() - time < Constants.CONN_WAIT_TIME) {
             response = overloadIn.readLine();
+    		if (response != null && response.equals(Constants.CONN_QUIT)) {
+    			disconnList.add(overloadSocket);
+    		}
         }
 
         //connect to free slave to write file
@@ -128,7 +148,4 @@ public class MasterResponse implements Runnable {
         }
 	}
 
-	public void setSocketList(ArrayList<Socket> slaveSocketList) {
-		this.slaveSocketList = slaveSocketList;
-	}
 }

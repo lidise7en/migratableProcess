@@ -40,19 +40,10 @@ public class Master extends BasicPart{
                if (message != null && message.equals(Constants.CONN_REGISTER)) {
                    synchronized(slaveSocketList) {
                        slaveSocketList.add(slaveSocket);
-                       msgHandler.setSocketList(slaveSocketList);
                    }
                    //connection build, response
                    serverOutput.println(Constants.CONN_BUILD);
                    serverOutput.flush();
-               //slave disconnect
-               }else if (message != null && message.equals(Constants.CONN_QUIT)) {
-            	   synchronized(slaveSocketList) {
-                       slaveSocketList.remove(slaveSocket);
-                       msgHandler.setSocketList(slaveSocketList);
-                       slaveSocket.close();
-                       System.out.println("An Slave has left us...");
-                   }
                }
            }
        } catch (IOException e) {

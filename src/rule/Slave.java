@@ -61,6 +61,7 @@ public class Slave extends BasicPart{
                     while(numRequest == null) {
                     	numRequest = numReq.readLine();
                     }
+
                     if(numRequest.equals(Constants.CONN_REQ)) {
                     	//send process number
                     	//System.out.println("Slave receive the REQ message!");
@@ -95,9 +96,15 @@ public class Slave extends BasicPart{
                     		synchronized(this.processlist){
                     			this.processlist.add(newProcess);
                     		}
+                    	} else if (migrateMsg != null && migrateMsg.equals(Constants.CONN_QUIT)) {
+                    		socketToServer.close();
+                    		System.exit(0);
                     	}
                     }
-                    else {
+                    else if(numRequest.equals(Constants.CONN_QUIT)) {
+                    	socketToServer.close();
+                    	System.exit(0);
+                    }else{
                     	System.out.println("LoadFinish msg from master.Ignore");
                     }
                 }
