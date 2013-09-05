@@ -54,7 +54,7 @@ public class SlaveProcessManager extends MasterProcessManager{
                 showProcesses();
             } else if (cmdInput != null && !cmdInput.equals("\n")) {
                 MigratableProcess mProcess = launchProcess(cmdInput.split(" "));
-                if (mProcess != null) {
+                if (mProcess != null && mProcess.getAlive()) {
                     synchronized(processList) {
                         processList.add(mProcess);
                     }

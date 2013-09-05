@@ -33,7 +33,20 @@ public class MasterResponse implements Runnable {
 				System.out.println("size is " + this.slaveSocketList.size());
 				disconnList = new ArrayList<Socket>();
 			    int totalProcessNum = fillSlaveMap();
-
+			    //debug
+			    Iterator<Entry<Integer, Integer>> debugito = overloadMap.entrySet().iterator();
+			    Iterator<Entry<Integer, Integer>> debugito2 = freeSlaveMap.entrySet().iterator();
+			    System.out.println("overloadmap ");
+			    while(debugito.hasNext()) {
+			    	Entry<Integer, Integer> debugEntry = debugito.next();
+			    	System.out.println(debugEntry.getKey() +  " " + debugEntry.getValue());
+			    }
+			    System.out.println("freeSlavemap ");
+			    while(debugito2.hasNext()) {
+			    	Entry<Integer, Integer> debugEntry = debugito2.next();
+			    	System.out.println(debugEntry.getKey() +  " " + debugEntry.getValue());
+			    }
+			    //
 			    if (totalProcessNum > this.slaveSocketList.size() * Constants.CONN_MAX_PROCESS) {
 			        System.out.println("The whole System is overloaded.");
 			    }
@@ -125,6 +138,7 @@ public class MasterResponse implements Runnable {
 	private void migrateProcess(Socket overloadSocket, Socket freeSocket) throws IOException {
         //connect to overload slave to write file
 	    PrintWriter overloadOut = new PrintWriter(overloadSocket.getOutputStream(), true);
+System.out.println("Master send leave message.");
         overloadOut.println(Constants.CONN_LEAVE);
         overloadOut.flush();
         BufferedReader overloadIn = new BufferedReader(new InputStreamReader(overloadSocket.getInputStream()));
@@ -137,7 +151,7 @@ public class MasterResponse implements Runnable {
     			disconnList.add(overloadSocket);
     		}
         }
-
+System.out.println("Master receive filename");
         //connect to free slave to write file
         if (response != null) {
             PrintWriter emit = new PrintWriter(freeSocket.getOutputStream(), true);

@@ -14,7 +14,7 @@ public class TransactionalFileOutputStream extends OutputStream
     //fields
     private long offset; // file offset
     private String fileName;
-    private RandomAccessFile file;
+    
 
     /**
      * constructor with append flag
@@ -24,6 +24,7 @@ public class TransactionalFileOutputStream extends OutputStream
     public TransactionalFileOutputStream(String outFile, boolean apflag) {
         fileName = outFile; 
         try {
+        	RandomAccessFile file;
             file = new RandomAccessFile(fileName, "rw");
             offset = apflag ? file.length() : 0;
             file.close();
@@ -39,6 +40,7 @@ public class TransactionalFileOutputStream extends OutputStream
      */
     @Override
     public void write(int content) throws IOException {
+    	RandomAccessFile file;
         file = new RandomAccessFile(fileName, "rw");
         if (file == null) {
             throw new IOException("This file has not been opened");
@@ -51,6 +53,7 @@ public class TransactionalFileOutputStream extends OutputStream
 
     @Override
     public void write(byte[] content) throws IOException {
+    	RandomAccessFile file;
         file = new RandomAccessFile(fileName, "rw");
         if (file == null) {
             throw new IOException("This file has not been opened");
@@ -64,6 +67,7 @@ public class TransactionalFileOutputStream extends OutputStream
 
     @Override
     public void write(byte[] content, int off, int len) throws IOException {
+    	RandomAccessFile file;
         file = new RandomAccessFile(fileName, "rw");
         if (file == null) {
             throw new IOException("This file has not been opened");

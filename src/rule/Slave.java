@@ -57,6 +57,12 @@ public class Slave extends BasicPart{
                 while(true) {
                 	//wait for process number request
                 	BufferedReader numReq = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
+                	for(int i = 0;i < processlist.size();i ++) {
+                		if(processlist.get(i).getAlive() == false) {
+                			processlist.remove(i);
+                			i --;
+                		}
+                	}
                     String numRequest = null;
                     while(numRequest == null) {
                     	numRequest = numReq.readLine();
@@ -80,12 +86,15 @@ public class Slave extends BasicPart{
                     	if(migrateMsg != null && migrateMsg.equals(Constants.CONN_LEAVE)) {
                     		synchronized(this.processlist){
                     			//serialize object and send back filename
+System.out.println("Slave receive the LEAVE msg.");
                     			MigratableProcess removedPro = this.processlist.remove(0);
                     			removedPro.suspend();
+System.out.println("process is suspend");
                     			String filename = SerializeProcess(removedPro);
                     			PrintWriter leaveProcess = new PrintWriter(socketToServer.getOutputStream(), true);
                     			leaveProcess.println(filename);
                     			leaveProcess.flush();
+System.out.println("filename is sent");
                     		}
                     	}
                     	else if(migrateMsg != null && migrateMsg.startsWith(Constants.CONN_GET)) {
@@ -133,6 +142,7 @@ public class Slave extends BasicPart{
 
             //write serialized object into file
             ObjectOutput s = new ObjectOutputStream(new FileOutputStream(filename));
+            System.out.println("filename is" + filename);
             s.writeObject(migratablePro);
             s.flush();
             s.close();

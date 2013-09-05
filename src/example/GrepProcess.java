@@ -16,7 +16,7 @@ public class GrepProcess implements MigratableProcess
     private TransactionalFileInputStream  inFile;
     private TransactionalFileOutputStream outFile;
     private String query;
-
+    private boolean isAlive;
     private volatile boolean suspending;
 
     public GrepProcess(String args[]) throws Exception
@@ -29,6 +29,7 @@ public class GrepProcess implements MigratableProcess
         query = args[0];
         inFile = new TransactionalFileInputStream(args[1]);
         outFile = new TransactionalFileOutputStream(args[2], false);
+        isAlive = true;
     }
 
     public void run()
@@ -40,7 +41,7 @@ public class GrepProcess implements MigratableProcess
             while (!suspending) {
                 @SuppressWarnings("deprecation")
                 String line = in.readLine();
-
+                
                 if (line == null) break;
                 
                 if (line.contains(query)) {
@@ -49,7 +50,7 @@ public class GrepProcess implements MigratableProcess
                 
                 // Make grep take longer so that we don't require extremely large files for interesting results
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(100000);
                 } catch (InterruptedException e) {
                     // ignore it
                 }
@@ -60,7 +61,7 @@ public class GrepProcess implements MigratableProcess
             System.out.println ("GrepProcess: Error: " + e);
         }
 
-
+        this.isAlive = false;
         suspending = false;
     }
 
@@ -80,4 +81,11 @@ public class GrepProcess implements MigratableProcess
         showstring.append(this.outFile.getFileName());
         return showstring.toString();
     }
+
+	@Override
+	public boolean getAlive() {
+		// TODO Auto-generated method stub
+		return this.isAlive;
+	}
+ 
 }

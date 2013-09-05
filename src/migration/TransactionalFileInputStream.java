@@ -13,7 +13,7 @@ public class TransactionalFileInputStream extends InputStream
     //fields
     private long offset; // file offset
     private String fileName;
-    private RandomAccessFile file;
+    
     private int lastContent;
 
     public TransactionalFileInputStream(String inFile) {
@@ -29,7 +29,7 @@ public class TransactionalFileInputStream extends InputStream
     public int read() throws IOException {
         //not reach the end already
         if (lastContent != -1) {
-
+        	RandomAccessFile file;
             file = new RandomAccessFile(fileName, "r");
             if (file == null) {
                 throw new IOException("This file has not been opened");
@@ -46,7 +46,7 @@ public class TransactionalFileInputStream extends InputStream
     public int read(byte[] b) throws IOException {
         //not reach the end already
         if (lastContent != -1) {
-
+        	RandomAccessFile file;
             file = new RandomAccessFile(fileName, "r");
             if (file == null) {
                 throw new IOException("This file has not been opened");
@@ -64,7 +64,7 @@ public class TransactionalFileInputStream extends InputStream
     public int read(byte[] b, int off, int len) throws IOException {
         //not reach the end already
         if (lastContent != -1) {
-
+        	RandomAccessFile file;
             file = new RandomAccessFile(fileName, "r");
             if (file == null) {
                 throw new IOException("This file has not been opened");
