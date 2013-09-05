@@ -59,6 +59,7 @@ public class Slave extends BasicPart{
                 	BufferedReader numReq = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
                 	for(int i = 0;i < processlist.size();i ++) {
                 		if(processlist.get(i).getAlive() == false) {
+System.out.println("delete a process");
                 			processlist.remove(i);
                 			i --;
                 		}
@@ -100,11 +101,20 @@ System.out.println("filename is sent");
                     	else if(migrateMsg != null && migrateMsg.startsWith(Constants.CONN_GET)) {
                     		//receive filename and deserialize it
                     		String filename = migrateMsg.split(" ")[1];
+System.out.println("Slave recevied filename: " + filename);
                     		MigratableProcess newProcess = DeserializeProcess(filename);
+                    		if(newProcess == null)
+System.out.println("The new process is null");
+System.out.println("Slave before start.");
                     		new Thread(newProcess).start();
+System.out.println("After start");
                     		synchronized(this.processlist){
+System.out.println("Really add to the list");
+System.out.println("before length" + processlist.size());
                     			this.processlist.add(newProcess);
+System.out.println("after length" + processlist.size());
                     		}
+System.out.println("add to pricesslist");
                     	} else if (migrateMsg != null && migrateMsg.equals(Constants.CONN_QUIT)) {
                     		socketToServer.close();
                     		System.exit(0);

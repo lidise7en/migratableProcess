@@ -152,11 +152,13 @@ System.out.println("Master send leave message.");
     		}
         }
 System.out.println("Master receive filename");
+System.out.println("filename is " + response);
         //connect to free slave to write file
         if (response != null) {
             PrintWriter emit = new PrintWriter(freeSocket.getOutputStream(), true);
             emit.println(Constants.CONN_GET + " "+ response);
             emit.flush();
+            System.out.println("Master has sent the filename to Slave.");
         } else {
             throw new IOException("Connection Timout: Getting filename from slave");
         }

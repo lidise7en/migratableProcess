@@ -39,6 +39,7 @@ public class GrepProcess implements MigratableProcess
 
         try {
             while (!suspending) {
+            	isAlive = true;
                 @SuppressWarnings("deprecation")
                 String line = in.readLine();
                 
@@ -50,7 +51,7 @@ public class GrepProcess implements MigratableProcess
                 
                 // Make grep take longer so that we don't require extremely large files for interesting results
                 try {
-                    Thread.sleep(100000);
+                    Thread.sleep(40000);
                 } catch (InterruptedException e) {
                     // ignore it
                 }
