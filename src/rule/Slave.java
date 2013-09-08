@@ -25,10 +25,12 @@ public class Slave extends BasicPart{
     //private Socket slaveSocket;
     private Socket socketToServer;
     private ArrayList<MigratableProcess> processlist;
-    public Slave(int port, String hostIpAddr, ArrayList<MigratableProcess> processlist) {
+    private ArrayList<Thread> threadlist;
+    public Slave(int port, String hostIpAddr, ArrayList<MigratableProcess> processlist, ArrayList<Thread> threadlist) {
         this.port = port;
         this.hostIpAddr = hostIpAddr;
         this.processlist = processlist;
+        this.threadlist = threadlist;
     }
 
     @Override
@@ -60,10 +62,11 @@ public class Slave extends BasicPart{
                 while(true) {
                 	//wait for process number request
                 	BufferedReader numReq = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
-                	for(int i = 0;i < processlist.size();i ++) {
-                		if(processlist.get(i).getAlive() == false) {
+                	for(int i = 0;i < threadlist.size();i ++) {
+                		if(threadlist.get(i).isAlive() == false) {
 System.out.println("delete a process");
                 			processlist.remove(i);
+                			threadlist.remove(i);
                 			i --;
                 		}
                 	}
@@ -87,6 +90,7 @@ System.out.println("delete a process");
                     			//serialize object and send back filename
 System.out.println("Slave receive the LEAVE msg.");
                     			MigratableProcess removedPro = this.processlist.remove(0);
+                    			this.threadlist.remove(0);
                     			removedPro.suspend();
 System.out.println("process is suspend");
                     			String filename = SerializeProcess(removedPro);
@@ -104,9 +108,13 @@ System.out.println("Slave recevied filename: " + filename);
                     		if(newProcess == null)
 System.out.println("The new process is null");
 System.out.println("Slave before start.");
-                    		new Thread(newProcess).start();
+                    		Thread newThread = new Thread(newProcess);
+                    		newThread.start();
+                    		synchronized(this.threadlist) {
+                    			this.threadlist.add(newThread);
+                    		}
 System.out.println("After start");
-                    		synchronized(this.processlist){
+                    		synchronized(this.processlist) {
 System.out.println("Really add to the list");
 System.out.println("before length" + processlist.size());
                     			this.processlist.add(newProcess);

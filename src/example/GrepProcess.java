@@ -16,7 +16,6 @@ public class GrepProcess implements MigratableProcess
     private TransactionalFileInputStream  inFile;
     private TransactionalFileOutputStream outFile;
     private String query;
-    private boolean isAlive;
     private volatile boolean suspending;
 
     public GrepProcess(String args[]) throws Exception
@@ -29,7 +28,6 @@ public class GrepProcess implements MigratableProcess
         query = args[0];
         inFile = new TransactionalFileInputStream(args[1]);
         outFile = new TransactionalFileOutputStream(args[2], false);
-        isAlive = true;
     }
 
     public void run()
@@ -39,7 +37,6 @@ public class GrepProcess implements MigratableProcess
 
         try {
             while (!suspending) {
-            	isAlive = true;
                 @SuppressWarnings("deprecation")
                 String line = in.readLine();
                 
@@ -62,7 +59,6 @@ public class GrepProcess implements MigratableProcess
             System.out.println ("GrepProcess: Error: " + e);
         }
 
-        this.isAlive = false;
         suspending = false;
 System.out.println("Running complete");
     }
@@ -83,11 +79,5 @@ System.out.println("Running complete");
         showstring.append(this.outFile.getFileName());
         return showstring.toString();
     }
-
-	@Override
-	public boolean getAlive() {
-		// TODO Auto-generated method stub
-		return this.isAlive;
-	}
  
 }

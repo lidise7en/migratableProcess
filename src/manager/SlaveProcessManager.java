@@ -17,12 +17,14 @@ public class SlaveProcessManager extends MasterProcessManager{
 
     //fields
     protected ArrayList<MigratableProcess> processList;
+    protected ArrayList<Thread> threadList;
 
     public SlaveProcessManager() {}
 
     public SlaveProcessManager(int port, String hostIpAddr) {
         processList = new ArrayList<MigratableProcess>();
-        host = new Slave(port, hostIpAddr, this.processList);
+        threadList = new ArrayList<Thread>();
+        host = new Slave(port, hostIpAddr, this.processList, this.threadList);
 
         new Thread(host).start();
         excuting();
@@ -31,7 +33,9 @@ public class SlaveProcessManager extends MasterProcessManager{
     public ArrayList<MigratableProcess> getProcessList() {
     	return processList;
     }
-
+    public ArrayList<Thread> getThreadList() {
+    	return threadList;
+    }
     @Override
     public void excuting() {
         String cmdInput = "";
@@ -54,12 +58,16 @@ public class SlaveProcessManager extends MasterProcessManager{
                 showProcesses();
             } else if (cmdInput != null && !cmdInput.equals("\n")) {
                 MigratableProcess mProcess = launchProcess(cmdInput.split(" "));
-                if (mProcess != null && mProcess.getAlive()) {
+                if (mProcess != null) {
                     synchronized(processList) {
                         processList.add(mProcess);
                     }
                 }
-                new Thread(mProcess).start();
+                Thread thread = new Thread(mProcess);
+                thread.start();
+                synchronized(threadList) {
+                	threadList.add(thread);
+                }
             }
         }
         disconnection();
