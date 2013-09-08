@@ -91,7 +91,6 @@ public class SlaveProcessManager extends MasterProcessManager{
         		IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             // TODO Auto-generated catch block
             System.out.println("Invalid command!");
-            e.printStackTrace();
         } 
         return null;
     }
@@ -113,14 +112,8 @@ public class SlaveProcessManager extends MasterProcessManager{
             PrintWriter serverOutput = new PrintWriter(hostSocket.getOutputStream(), true);
             serverOutput.println(Constants.CONN_QUIT);
             serverOutput.flush();
-            System.out.println("Waiting for quit comfirm from Master, if not quit in 5s,"+
-            " please prease Ctrl+c...");
+            System.out.println("Waiting for quit comfirm from Master.");
             while(true);
-            /*BufferedReader in = new BufferedReader(new InputStreamReader(hostSocket.getInputStream()));
-            String response = " ";
-            while (response != null && !response.equals(Constants.CONN_QUIT)) {
-            	response = in.readLine();
-            }*/
             
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

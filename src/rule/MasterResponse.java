@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,7 +48,7 @@ public class MasterResponse implements Runnable {
 			    	System.out.println(debugEntry.getKey() +  " " + debugEntry.getValue());
 			    }
 			    //
-			    if (totalProcessNum > this.slaveSocketList.size() * Constants.CONN_MAX_PROCESS) {
+			    if (totalProcessNum > this.slaveSocketList.size() * Constants.CONN_MAX_PROCESS && this.freeSlaveMap.size() == 0) {
 			        System.out.println("The whole System is overloaded.");
 			    }
 			    else {
@@ -62,6 +63,8 @@ public class MasterResponse implements Runnable {
 			    					migrateProcess(slaveSocketList.get(oEntry.getKey()), slaveSocketList.get(fEntry.getKey()));
 			    					oEntry.setValue(oEntry.getValue()-1);
 			    					fEntry.setValue(fEntry.getValue()-1);
+System.out.println("overload:" + oEntry.getValue());
+System.out.println("free" + fEntry.getValue());
 			    				} else if (ito.hasNext()) {
 			    					oEntry = ito.next();
 			    				} else {
@@ -90,7 +93,9 @@ public class MasterResponse implements Runnable {
 				
 				Thread.sleep(Constants.CONN_POLL_INTERVAL);
 			}
-		} catch(Exception e) {
+		}
+		catch(Exception e) {
+			
 			e.printStackTrace();
 		}
 	}

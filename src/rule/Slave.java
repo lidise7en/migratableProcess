@@ -34,6 +34,9 @@ public class Slave extends BasicPart{
     @Override
     public void run() {
         try {
+        	System.out.println("Command list for Slave:\n" + 
+        			"ps:list all the running processes.\n" + 
+        			"quit:terminate this slave.(Do not use ctrl + c)");
         	socketToServer = new Socket(this.hostIpAddr, this.port);
             PrintWriter out = new PrintWriter(socketToServer.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
@@ -159,8 +162,13 @@ System.out.println("add to pricesslist");
         ObjectInputStream in;
         MigratableProcess mProcess = null;
         try {
-            in = new ObjectInputStream(new FileInputStream(filename));
+        	FileInputStream fileInput = new FileInputStream(filename); 
+            in = new ObjectInputStream(fileInput);
             mProcess = (MigratableProcess)in.readObject();
+            in.close();
+            fileInput.close();
+            new File(filename).delete();
+            
         } catch (IOException | ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

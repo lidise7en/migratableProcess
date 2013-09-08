@@ -64,6 +64,7 @@ public class GrepProcess implements MigratableProcess
 
         this.isAlive = false;
         suspending = false;
+System.out.println("Running complete");
     }
 
     public void suspend()
