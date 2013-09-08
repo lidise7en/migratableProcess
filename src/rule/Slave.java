@@ -37,7 +37,7 @@ public class Slave extends BasicPart{
         	socketToServer = new Socket(this.hostIpAddr, this.port);
             PrintWriter out = new PrintWriter(socketToServer.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
-            String migrateMsg = null;
+
 
             //register
             out.println(Constants.CONN_REGISTER);
@@ -78,13 +78,8 @@ System.out.println("delete a process");
                     	//System.out.println("Slave sent the number of processes");
                     	//receive leave call or get call
                     	BufferedReader inOrder = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
-                    	migrateMsg = null;
-                    	long tim = System.currentTimeMillis();
-                    	while(migrateMsg == null && System.currentTimeMillis() - tim < Constants.CONN_WAIT_TIME) {
-                    		migrateMsg = inOrder.readLine();
-                    	}
-
-                    	if(migrateMsg != null && migrateMsg.equals(Constants.CONN_LEAVE)) {
+                    }
+                    else if(numRequest != null && numRequest.equals(Constants.CONN_LEAVE)) {
                     		synchronized(this.processlist){
                     			//serialize object and send back filename
 System.out.println("Slave receive the LEAVE msg.");
@@ -97,10 +92,10 @@ System.out.println("process is suspend");
                     			leaveProcess.flush();
 System.out.println("filename is sent");
                     		}
-                    	}
-                    	else if(migrateMsg != null && migrateMsg.startsWith(Constants.CONN_GET)) {
+                    }
+                    else if(numRequest != null && numRequest.startsWith(Constants.CONN_GET)) {
                     		//receive filename and deserialize it
-                    		String filename = migrateMsg.split(" ")[1];
+                    		String filename = numRequest.split(" ")[1];
 System.out.println("Slave recevied filename: " + filename);
                     		MigratableProcess newProcess = DeserializeProcess(filename);
                     		if(newProcess == null)
@@ -115,10 +110,6 @@ System.out.println("before length" + processlist.size());
 System.out.println("after length" + processlist.size());
                     		}
 System.out.println("add to pricesslist");
-                    	} else if (migrateMsg != null && migrateMsg.equals(Constants.CONN_QUIT)) {
-                    		socketToServer.close();
-                    		System.exit(0);
-                    	}
                     }
                     else if(numRequest.equals(Constants.CONN_QUIT)) {
                     	socketToServer.close();
