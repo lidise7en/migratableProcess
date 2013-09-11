@@ -47,12 +47,6 @@ public class ReplaceProcess implements MigratableProcess {
                     line = line.replaceAll(this.findStr, this.replaceStr);
                     out.println(line);
                 }
-                
-                try {
-                    Thread.sleep(40000);
-                } catch (InterruptedException e) {
-                    // ignore it
-                }
             }
         } catch (EOFException e) {
             //End of File
@@ -61,7 +55,6 @@ public class ReplaceProcess implements MigratableProcess {
         }
 
         suspending = false;
-System.out.println("Running complete");
     }
     
     public void suspend()

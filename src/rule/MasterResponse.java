@@ -31,23 +31,9 @@ public class MasterResponse implements Runnable {
 			while(true) {
 				this.freeSlaveMap  = new HashMap<Integer, Integer>();
 				this.overloadMap  = new HashMap<Integer, Integer>();
-				System.out.println("size is " + this.slaveSocketList.size());
 				disconnList = new ArrayList<Socket>();
 			    int totalProcessNum = fillSlaveMap();
-			    //debug
-			    Iterator<Entry<Integer, Integer>> debugito = overloadMap.entrySet().iterator();
-			    Iterator<Entry<Integer, Integer>> debugito2 = freeSlaveMap.entrySet().iterator();
-			    System.out.println("overloadmap ");
-			    while(debugito.hasNext()) {
-			    	Entry<Integer, Integer> debugEntry = debugito.next();
-			    	System.out.println(debugEntry.getKey() +  " " + debugEntry.getValue());
-			    }
-			    System.out.println("freeSlavemap ");
-			    while(debugito2.hasNext()) {
-			    	Entry<Integer, Integer> debugEntry = debugito2.next();
-			    	System.out.println(debugEntry.getKey() +  " " + debugEntry.getValue());
-			    }
-			    //
+
 			    if (totalProcessNum > this.slaveSocketList.size() * Constants.CONN_MAX_PROCESS && this.freeSlaveMap.size() == 0) {
 			        System.out.println("The whole System is overloaded.");
 			    }
@@ -63,8 +49,6 @@ public class MasterResponse implements Runnable {
 			    					migrateProcess(slaveSocketList.get(oEntry.getKey()), slaveSocketList.get(fEntry.getKey()));
 			    					oEntry.setValue(oEntry.getValue()-1);
 			    					fEntry.setValue(fEntry.getValue()-1);
-System.out.println("overload:" + oEntry.getValue());
-System.out.println("free" + fEntry.getValue());
 			    				} else if (ito.hasNext()) {
 			    					oEntry = ito.next();
 			    				} else {
@@ -108,7 +92,6 @@ System.out.println("free" + fEntry.getValue());
         	PrintWriter sendReq = new PrintWriter(slaveSocketList.get(i).getOutputStream(), true);
         	sendReq.println(Constants.CONN_REQ);
         	sendReq.flush();
-        	//System.out.println("Enter here");
         	String response = null;
         	long timer = System.currentTimeMillis();
         	while((response == null || response.equals(Constants.CONN_QUIT)) && 
@@ -143,7 +126,6 @@ System.out.println("free" + fEntry.getValue());
 	private void migrateProcess(Socket overloadSocket, Socket freeSocket) throws IOException {
         //connect to overload slave to write file
 	    PrintWriter overloadOut = new PrintWriter(overloadSocket.getOutputStream(), true);
-System.out.println("Master send leave message.");
         overloadOut.println(Constants.CONN_LEAVE);
         overloadOut.flush();
         BufferedReader overloadIn = new BufferedReader(new InputStreamReader(overloadSocket.getInputStream()));
@@ -156,8 +138,6 @@ System.out.println("Master send leave message.");
     			disconnList.add(overloadSocket);
     		}
         }
-System.out.println("Master receive filename");
-System.out.println("filename is " + response);
         //connect to free slave to write file
         if (response != null) {
             PrintWriter emit = new PrintWriter(freeSocket.getOutputStream(), true);

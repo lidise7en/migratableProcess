@@ -51,12 +51,6 @@ public class ClusterProcess implements MigratableProcess {
                 else {
                 	this.map.put(line, 1);
                 }
-                
-                try {
-                    Thread.sleep(40000);
-                } catch (InterruptedException e) {
-                    // ignore it
-                }
             }
         } catch (EOFException e) {
             //End of File
@@ -65,7 +59,6 @@ public class ClusterProcess implements MigratableProcess {
         }
 
         suspending = false;
-System.out.println("Running complete");
     }
     
     public void suspend()
