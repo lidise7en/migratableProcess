@@ -62,12 +62,13 @@ public class SlaveProcessManager extends MasterProcessManager{
                     synchronized(processList) {
                         processList.add(mProcess);
                     }
+                    Thread thread = new Thread(mProcess);
+                    thread.start();
+                    synchronized(threadList) {
+                    	threadList.add(thread);
+                    }
                 }
-                Thread thread = new Thread(mProcess);
-                thread.start();
-                synchronized(threadList) {
-                	threadList.add(thread);
-                }
+                
             }
         }
         disconnection();
@@ -104,13 +105,15 @@ public class SlaveProcessManager extends MasterProcessManager{
     }
 
     private void showProcesses() {
-        if (this.processList.size() == 0) {
-            System.out.println("No processes is running");
-        } else {
-            for (MigratableProcess mProcess : this.processList) {
-                System.out.println(mProcess.toString());
-            }
-        }
+
+    		if (this.processList.size() == 0) {
+    			System.out.println("No processes is running");
+    		} else {
+    			for (MigratableProcess mProcess : this.processList) {
+    				System.out.println(mProcess.toString());
+    			}
+    		}
+    	
     }
 
     @Override

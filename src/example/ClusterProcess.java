@@ -24,8 +24,8 @@ public class ClusterProcess implements MigratableProcess {
             throw new Exception("Invalid Arguments");
     	}
     	
-        inFile = new TransactionalFileInputStream(args[1]);
-        outFile = new TransactionalFileOutputStream(args[2], false);
+        inFile = new TransactionalFileInputStream(args[0]);
+        outFile = new TransactionalFileOutputStream(args[1], false);
     }
     
     public void run()
@@ -50,6 +50,12 @@ public class ClusterProcess implements MigratableProcess {
                 }
                 else {
                 	this.map.put(line, 1);
+                }
+                
+                try {
+                    Thread.sleep(6000);
+                } catch (InterruptedException e) {
+                    // ignore it
                 }
             }
         } catch (EOFException e) {

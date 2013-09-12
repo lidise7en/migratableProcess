@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 import migration.MigratableProcess;
@@ -62,13 +63,22 @@ public class Slave extends BasicPart{
                 while(true) {
                 	//wait for process number request
                 	BufferedReader numReq = new BufferedReader(new InputStreamReader(socketToServer.getInputStream()));
-                	for(int i = 0;i < threadlist.size();i ++) {
-                		if(threadlist.get(i).isAlive() == false) {
-                			processlist.remove(i);
-                			threadlist.remove(i);
-                			i --;
+                	synchronized(processlist) {
+                		synchronized(threadlist) {
+                				Iterator<MigratableProcess> iteProcess = processlist.iterator();
+                				Iterator<Thread> iteThread = threadlist.iterator();
+
+                						while(iteThread.hasNext()) {
+                								Thread t = iteThread.next();
+                								MigratableProcess p = iteProcess.next();
+                								if(t.isAlive() == false) {
+                									iteProcess.remove();
+                									iteThread.remove();
+                								}
+                						}
                 		}
                 	}
+                	
                     String numRequest = null;
                     while(numRequest == null) {
                     	numRequest = numReq.readLine();
@@ -85,21 +95,27 @@ public class Slave extends BasicPart{
                     else if(numRequest != null && numRequest.equals(Constants.CONN_LEAVE)) {
                     		synchronized(this.processlist){
                     			//serialize object and send back filename
-                    			MigratableProcess removedPro = this.processlist.remove(0);
-                    			this.threadlist.remove(0);
-                    			removedPro.suspend();
-
-                    			String filename = SerializeProcess(removedPro);
-                    			PrintWriter leaveProcess = new PrintWriter(socketToServer.getOutputStream(), true);
-                    			leaveProcess.println(filename);
-                    			leaveProcess.flush();
-
+								if(this.processlist.size() != 0) {
+									MigratableProcess removedPro = this.processlist.remove(0);
+									synchronized(this.threadlist) {
+										this.threadlist.remove(0);
+									}
+									removedPro.suspend();
+                    				String filename = SerializeProcess(removedPro);
+                    				PrintWriter leaveProcess = new PrintWriter(socketToServer.getOutputStream(), true);
+                    				leaveProcess.println(filename);
+                    				leaveProcess.flush();
+								}
+								else {
+									PrintWriter leaveProcess = new PrintWriter(socketToServer.getOutputStream(), true);
+                    				leaveProcess.println(Constants.CONN_EMPTY);
+                    				leaveProcess.flush();
+								}
                     		}
                     }
                     else if(numRequest != null && numRequest.startsWith(Constants.CONN_GET)) {
                     		//receive filename and deserialize it
                     		String filename = numRequest.split(" ")[1];
-
                     		MigratableProcess newProcess = DeserializeProcess(filename);
 
                     		Thread newThread = new Thread(newProcess);
@@ -107,15 +123,14 @@ public class Slave extends BasicPart{
                     		synchronized(this.threadlist) {
                     			this.threadlist.add(newThread);
                     		}
-
                     		synchronized(this.processlist) {
 
                     			this.processlist.add(newProcess);
 
                     		}
-
                     }
                     else if(numRequest.equals(Constants.CONN_QUIT)) {
+
                     	socketToServer.close();
                     	System.exit(0);
                     }else{

@@ -45,6 +45,13 @@ public class GrepProcess implements MigratableProcess
                 if (line.contains(query)) {
                     out.println(line);
                 }
+                
+                // Make grep take longer so that we don't require extremely large files for interesting results
+                try {
+                    Thread.sleep(6000);
+                } catch (InterruptedException e) {
+                    // ignore it
+                }
             }
         } catch (EOFException e) {
             //End of File

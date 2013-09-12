@@ -25,10 +25,10 @@ public class ReplaceProcess implements MigratableProcess {
             throw new Exception("Invalid Arguments");
     	}
     	
-    	String findStr = args[0];
-    	String replaceStr = args[1];
-        inFile = new TransactionalFileInputStream(args[1]);
-        outFile = new TransactionalFileOutputStream(args[2], false);
+    	this.findStr = args[0];
+    	this.replaceStr = args[1];
+        inFile = new TransactionalFileInputStream(args[2]);
+        outFile = new TransactionalFileOutputStream(args[3], false);
     }
     
     public void run()
@@ -46,6 +46,12 @@ public class ReplaceProcess implements MigratableProcess {
                 if((index = line.indexOf(this.findStr)) != -1) {
                     line = line.replaceAll(this.findStr, this.replaceStr);
                     out.println(line);
+                }
+                
+                try {
+                    Thread.sleep(6000);
+                } catch (InterruptedException e) {
+                    // ignore it
                 }
             }
         } catch (EOFException e) {

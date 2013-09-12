@@ -31,6 +31,7 @@ public class MasterResponse implements Runnable {
 			while(true) {
 				this.freeSlaveMap  = new HashMap<Integer, Integer>();
 				this.overloadMap  = new HashMap<Integer, Integer>();
+
 				disconnList = new ArrayList<Socket>();
 			    int totalProcessNum = fillSlaveMap();
 
@@ -58,13 +59,9 @@ public class MasterResponse implements Runnable {
 			    		}
 			    	}
 			    }
-				for(int i = 0;i < this.slaveSocketList.size();i ++) {
-					PrintWriter sendLoadFinish = new PrintWriter(slaveSocketList.get(i).getOutputStream(), true);
-					sendLoadFinish.println(Constants.CONN_LOADFINISH);
-					sendLoadFinish.flush();
-				}
-
+			    
 				//disconnect msg
+				
 				for(Socket sock : disconnList) {
 					PrintWriter disconn = new PrintWriter(sock.getOutputStream(), true);
 					disconn.println(Constants.CONN_QUIT);
@@ -74,7 +71,14 @@ public class MasterResponse implements Runnable {
                     System.out.println("An Slave has left us...");
 					disconn.flush();
 				}
-				
+			  	
+				for(int i = 0;i < this.slaveSocketList.size();i ++) {
+					PrintWriter sendLoadFinish = new PrintWriter(slaveSocketList.get(i).getOutputStream(), true);
+					sendLoadFinish.println(Constants.CONN_LOADFINISH);
+					sendLoadFinish.flush();
+				}
+
+
 				Thread.sleep(Constants.CONN_POLL_INTERVAL);
 			}
 		}
@@ -92,6 +96,7 @@ public class MasterResponse implements Runnable {
         	PrintWriter sendReq = new PrintWriter(slaveSocketList.get(i).getOutputStream(), true);
         	sendReq.println(Constants.CONN_REQ);
         	sendReq.flush();
+
         	String response = null;
         	long timer = System.currentTimeMillis();
         	while((response == null || response.equals(Constants.CONN_QUIT)) && 
@@ -126,6 +131,7 @@ public class MasterResponse implements Runnable {
 	private void migrateProcess(Socket overloadSocket, Socket freeSocket) throws IOException {
         //connect to overload slave to write file
 	    PrintWriter overloadOut = new PrintWriter(overloadSocket.getOutputStream(), true);
+
         overloadOut.println(Constants.CONN_LEAVE);
         overloadOut.flush();
         BufferedReader overloadIn = new BufferedReader(new InputStreamReader(overloadSocket.getInputStream()));
@@ -134,10 +140,14 @@ public class MasterResponse implements Runnable {
         while ((response == null || response.equals(Constants.CONN_QUIT)) && 
         	System.currentTimeMillis() - time < Constants.CONN_WAIT_TIME) {
             response = overloadIn.readLine();
+            if(response.equals(Constants.CONN_EMPTY)) {
+            	return;
+            }
     		if (response != null && response.equals(Constants.CONN_QUIT)) {
     			disconnList.add(overloadSocket);
     		}
         }
+
         //connect to free slave to write file
         if (response != null) {
             PrintWriter emit = new PrintWriter(freeSocket.getOutputStream(), true);
