@@ -47,7 +47,7 @@ public class ReplaceProcess implements MigratableProcess {
                     line = line.replaceAll(this.findStr, this.replaceStr);
                     out.println(line);
                 }
-                
+
                 try {
                     Thread.sleep(6000);
                 } catch (InterruptedException e) {
